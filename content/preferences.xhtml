@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+      xmlns:html="http://www.w3.org/1999/xhtml">
+  <groupbox>
+    <label><html:h2>Attaclone-dedup</html:h2></label>
+
+    <checkbox label="Dry run (detect and report only, make no changes)"
+              preference="extensions.attaclone-dedup.dryRun"/>
+
+    <checkbox label="Move duplicates to Trash instead of deleting permanently"
+              preference="extensions.attaclone-dedup.moveToTrash"/>
+
+    <hbox align="center">
+      <label value="When auto-resolving identical copies, keep the:"/>
+      <menulist preference="extensions.attaclone-dedup.keepStrategy">
+        <menupopup>
+          <menuitem label="Oldest (earliest added)" value="oldest"/>
+          <menuitem label="Newest (most recently added)" value="newest"/>
+        </menupopup>
+      </menulist>
+    </hbox>
+  </groupbox>
+</vbox>

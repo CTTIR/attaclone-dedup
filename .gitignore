@@ -1,0 +1,36 @@
+# Build artifacts
+*.xpi
+*.zip
+build/
+dist/
+
+# Quarto / docs site
+/_site/
+/.quarto/
+/docs/_site/
+/docs/.quarto/
+/docs/_freeze/
+
+# Editor & OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Node (if a tooling step is ever added)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (the _repack helper)
+__pycache__/
+*.pyc
+
+# Local tooling / scratch — never commit
+.claude/
+CLAUDE.md
+MEMORY.md
+.cowork/
+.remember/

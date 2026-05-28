@@ -1,0 +1,66 @@
+---
+title: "Walkthrough"
+---
+
+This vignette walks through a realistic end-to-end use of Attaclone-dedup: install the plugin, configure preferences, run a scan on a small selection, handle an ambiguous case via the manual dialog, then run a full-library sweep.
+
+## Installation {#installation}
+
+1. Download `attaclone-dedup-<version>.xpi` from the [Releases page](https://github.com/r-heller/zotero-attaclone-dedup/releases).
+2. In Zotero, open **Tools → Plugins**.
+3. Click the gear icon and choose **Install Plugin From File…**.
+4. Select the downloaded `.xpi`. Restart Zotero if prompted.
+
+![Tools → Plugins → Install Plugin From File…](images/01-install.png){fig-alt="Zotero plugins window showing the install-from-file option."}
+
+## Preferences
+
+Open **Edit → Settings → Attaclone-dedup**.
+
+| Preference        | Default   | Effect                                                                   |
+|-------------------|-----------|--------------------------------------------------------------------------|
+| Dry run           | off       | If on, scans report what *would* be removed but do not change anything.  |
+| Keep strategy     | `oldest`  | When auto-resolving, which copy to keep (by `dateAdded`).                |
+| Move to trash     | on        | Removed attachments go to the Zotero trash. Off = permanent erase.       |
+
+::: {.callout-tip}
+For your first full-library run, enable **Dry run**. Review the summary, then turn it off.
+:::
+
+![Preferences pane](images/02-prefs.png){fig-alt="Attaclone-dedup preferences pane."}
+
+## Scan a selection
+
+1. Select one or more items in your library.
+2. Right-click → **Check for duplicate attachments**.
+
+![Item context menu entry](images/03-item-menu.png){fig-alt="Item context menu with Attaclone-dedup entry."}
+
+Bare byte-identical duplicates are removed automatically. Items carrying annotations, notes, or tags are queued for the manual dialog.
+
+## Handle an ambiguous case
+
+If a duplicate group has any member with annotations, notes, or tags, you'll see the manual-resolve dialog:
+
+- Tick the attachments you want to **keep**.
+- Optionally tick **Merge annotations onto the kept PDF** — annotations on attachments you're about to delete are cloned onto the keeper before deletion.
+- Confirm.
+
+![Manual resolve dialog](images/04-manual-dialog.png){fig-alt="Manual resolve dialog with attachment list and merge-annotations checkbox."}
+
+## Scan a collection or the whole library
+
+- A single collection: right-click the collection → **Scan collection for duplicate attachments**.
+- Everything in the library: **Tools → Scan entire library for duplicate attachments**. You'll be asked to confirm.
+
+A progress window runs during the sweep. A summary dialog reports items scanned, duplicates found, auto-resolved, and how many were sent to manual review.
+
+![Summary dialog after a full scan](images/05-summary.png){fig-alt="Summary dialog showing scan statistics."}
+
+## Recovery
+
+If `Move to trash` is on (the default), removed attachments live in the Zotero trash and can be restored from there. If you turned trash off and erased something you wanted to keep, restore from a Zotero database backup.
+
+## Reporting issues
+
+Please include your Zotero version, OS, plugin version, and any `Attaclone-dedup:`-prefixed lines from **Help → Debug Output Logging** when filing a bug. See the [issue tracker](https://github.com/r-heller/zotero-attaclone-dedup/issues).

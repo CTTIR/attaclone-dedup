@@ -1,0 +1,2 @@
+.dup-row { background: var(--material-background, #fff); }
+.dup-row:hover { background: var(--material-mix-quarternary, #f5f5f5); }

@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "Attaclone-dedup",
+  "version": "1.0.0",
+  "description": "Detects and manages duplicate file attachments within Zotero items. Auto-resolves byte-identical copies and lets you decide manually when ambiguous.",
+  "homepage_url": "https://github.com/r-heller/zotero-attaclone-dedup",
+  "author": "Raban",
+  "icons": {
+    "48": "content/icons/icon.png",
+    "96": "content/icons/icon@2x.png"
+  },
+  "applications": {
+    "zotero": {
+      "id": "attaclone-dedup@r-heller.github.io",
+      "update_url": "https://raw.githubusercontent.com/r-heller/zotero-attaclone-dedup/main/updates.json",
+      "strict_min_version": "6.999",
+      "strict_max_version": "9.*"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dialog
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  title="Resolve Duplicate Attachments"
+  onload="DupResolve.onLoad();"
+  width="720"
+  height="520"
+  buttons="accept,cancel"
+  buttonlabelaccept="Apply"
+  buttonlabelcancel="Skip this item"
+  ondialogaccept="return DupResolve.onAccept();"
+  ondialogcancel="return DupResolve.onCancel();"
+>
+  <linkset>
+    <html:link rel="stylesheet" href="chrome://attaclone-dedup/content/manualResolve.css" />
+  </linkset>
+
+  <script src="chrome://attaclone-dedup/content/manualResolve.js" />
+
+  <vbox flex="1" style="padding: 12px; overflow: auto;">
+    <description id="dup-intro" style="font-weight: bold; margin-bottom: 8px;">
+      Multiple attachments look like duplicates. Choose which to keep.
+    </description>
+    <description id="dup-item-title" style="margin-bottom: 10px;"></description>
+
+    <vbox id="dup-list" flex="1"></vbox>
+
+    <hbox style="margin-top: 10px;" align="center">
+      <checkbox
+        id="dup-merge-annotations"
+        label="Merge annotations from deleted copies into the kept copy (PDF only)"
+      />
+    </hbox>
+    <description style="margin-top: 6px; color: #888; font-size: 0.9em;">
+      Tip: keep exactly one copy. Anything unchecked under "Keep" will be moved to trash.
+    </description>
+  </vbox>
+</dialog>
