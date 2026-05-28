@@ -17,7 +17,7 @@ Open an issue describing the use case. Keep the scope tight — the plugin delib
 
 ## Development
 
-The plugin is a bootstrapped Zotero 7 extension; no build step is required for development.
+The plugin is a bootstrapped Zotero 9+ extension; no build step is required for development.
 
 ```powershell
 # Repack the .xpi after editing source files
@@ -36,5 +36,5 @@ To load an unpacked plugin in Zotero, point a file named `attaclone-dedup@r-hell
 
 1. Fork and create a topic branch.
 2. Make focused changes — one concern per PR.
-3. Test against a real Zotero 7+ installation with a non-trivial library before opening the PR.
+3. Test against a real Zotero 9+ installation with a non-trivial library before opening the PR.
 4. Update `CHANGELOG.md` under the `Unreleased` heading.

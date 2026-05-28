@@ -3,7 +3,7 @@ message: "If you use this software, please cite it as below."
 type: software
 title: "Attaclone-dedup: A Zotero plugin for detecting and managing duplicate file attachments"
 abstract: >-
-  A Zotero 7+ plugin that detects duplicate file attachments within items by
+  A Zotero 9+ plugin that detects duplicate file attachments within items by
   content hash, auto-resolves byte-identical bare copies, and provides a manual
   review dialog (with optional annotation merging) for ambiguous cases.
 authors:

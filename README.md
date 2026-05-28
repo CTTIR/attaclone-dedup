@@ -1,3 +1,5 @@
+<img src="icon.svg" alt="Attaclone-dedup icon" width="96" align="right" />
+
 # Attaclone-dedup
 
 A Zotero plugin that detects and manages duplicate file attachments within Zotero items.
@@ -17,7 +19,7 @@ Large Zotero libraries accumulate duplicate PDFs attached to the same parent ite
 
 ## Compatibility
 
-Zotero 7 and later (`strict_min_version` 6.999, `strict_max_version` 9.\*).
+Zotero 9 and later.
 
 ## Installation
 

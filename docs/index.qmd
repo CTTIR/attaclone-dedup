@@ -3,6 +3,8 @@ title: "Attaclone-dedup"
 subtitle: "A Zotero plugin for detecting and managing duplicate file attachments"
 ---
 
+![](images/icon.svg){width=96px fig-alt="Attaclone-dedup icon — two stacked squares"}
+
 ## What it does
 
 Large Zotero libraries accumulate duplicate PDFs attached to the same parent item — usually because the same file was imported through multiple routes (browser connector, manual drop, snapshot). **Attaclone-dedup** compares attachments by content hash, automatically removes byte-identical *bare* copies, and queues the ambiguous cases (anything carrying annotations, notes, or tags) for a manual review dialog so you never lose annotation work without confirming.
@@ -24,8 +26,31 @@ Large Zotero libraries accumulate duplicate PDFs attached to the same parent ite
 
 ## Compatibility
 
-Zotero 7 and later.
+Zotero 9 and later.
 
 ## Citation
 
-See [How to cite this plugin](https://github.com/CTTIR/attaclone-dedup#how-to-cite-this-plugin) in the repository README.
+If you use Attaclone-dedup in published work, please cite it. The
+canonical metadata lives in
+[`CITATION.cff`](https://github.com/CTTIR/attaclone-dedup/blob/main/CITATION.cff).
+
+**BibTeX**
+
+```bibtex
+@software{heller_attaclone_dedup_2026,
+  author  = {Heller, Raban},
+  title   = {Attaclone-dedup: a Zotero plugin for detecting and managing
+             duplicate file attachments},
+  year    = {2026},
+  version = {1.0.0},
+  license = {MIT},
+  url     = {https://github.com/CTTIR/attaclone-dedup},
+  note    = {Zotero 9+ plugin}
+}
+```
+
+**APA**
+
+> Heller, R. (2026). *Attaclone-dedup: a Zotero plugin for detecting and
+> managing duplicate file attachments* (Version 1.0.0) [Computer
+> software]. https://github.com/CTTIR/attaclone-dedup
