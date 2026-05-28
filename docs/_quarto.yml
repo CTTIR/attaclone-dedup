@@ -5,7 +5,7 @@ project:
 website:
   title: "Attaclone-dedup"
   description: "A Zotero plugin for detecting and managing duplicate file attachments."
-  repo-url: https://github.com/r-heller/zotero-attaclone-dedup
+  repo-url: https://github.com/CTTIR/attaclone-dedup
   repo-actions: [edit, issue]
   navbar:
     background: primary
@@ -16,7 +16,7 @@ website:
         text: Walkthrough
     right:
       - icon: github
-        href: https://github.com/r-heller/zotero-attaclone-dedup
+        href: https://github.com/CTTIR/attaclone-dedup
   page-footer:
     left: "© 2026 Raban Heller — MIT License"
     right: "Built with [Quarto](https://quarto.org/)"

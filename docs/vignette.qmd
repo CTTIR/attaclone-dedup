@@ -6,7 +6,7 @@ This vignette walks through a realistic end-to-end use of Attaclone-dedup: insta
 
 ## Installation {#installation}
 
-1. Download `attaclone-dedup-<version>.xpi` from the [Releases page](https://github.com/r-heller/zotero-attaclone-dedup/releases).
+1. Download `attaclone-dedup-<version>.xpi` from the [Releases page](https://github.com/CTTIR/attaclone-dedup/releases).
 2. In Zotero, open **Tools → Plugins**.
 3. Click the gear icon and choose **Install Plugin From File…**.
 4. Select the downloaded `.xpi`. Restart Zotero if prompted.
@@ -63,4 +63,4 @@ If `Move to trash` is on (the default), removed attachments live in the Zotero t
 
 ## Reporting issues
 
-Please include your Zotero version, OS, plugin version, and any `Attaclone-dedup:`-prefixed lines from **Help → Debug Output Logging** when filing a bug. See the [issue tracker](https://github.com/r-heller/zotero-attaclone-dedup/issues).
+Please include your Zotero version, OS, plugin version, and any `Attaclone-dedup:`-prefixed lines from **Help → Debug Output Logging** when filing a bug. See the [issue tracker](https://github.com/CTTIR/attaclone-dedup/issues).

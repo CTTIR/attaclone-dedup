@@ -19,8 +19,8 @@ Large Zotero libraries accumulate duplicate PDFs attached to the same parent ite
 
 - [Installation](vignette.qmd#installation)
 - [Walkthrough](vignette.qmd)
-- [Source code on GitHub](https://github.com/r-heller/zotero-attaclone-dedup)
-- [Issue tracker](https://github.com/r-heller/zotero-attaclone-dedup/issues)
+- [Source code on GitHub](https://github.com/CTTIR/attaclone-dedup)
+- [Issue tracker](https://github.com/CTTIR/attaclone-dedup/issues)
 
 ## Compatibility
 
@@ -28,4 +28,4 @@ Zotero 7 and later.
 
 ## Citation
 
-See [How to cite this plugin](https://github.com/r-heller/zotero-attaclone-dedup#how-to-cite-this-plugin) in the repository README.
+See [How to cite this plugin](https://github.com/CTTIR/attaclone-dedup#how-to-cite-this-plugin) in the repository README.

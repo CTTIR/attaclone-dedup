@@ -21,7 +21,7 @@ Zotero 7 and later (`strict_min_version` 6.999, `strict_max_version` 9.\*).
 
 ## Installation
 
-1. Download `attaclone-dedup-<version>.xpi` from the [Releases page](https://github.com/r-heller/zotero-attaclone-dedup/releases).
+1. Download `attaclone-dedup-<version>.xpi` from the [Releases page](https://github.com/CTTIR/attaclone-dedup/releases).
 2. In Zotero, open **Tools → Plugins**.
 3. Click the gear icon → **Install Plugin From File…**, then select the downloaded `.xpi`.
 4. Restart Zotero if prompted.
@@ -40,7 +40,7 @@ Enable **Dry run** in preferences before your first full-library scan. Attaclone
 
 ## Documentation
 
-A full walkthrough vignette is published at <https://r-heller.github.io/zotero-attaclone-dedup/>.
+A full walkthrough vignette is published at <https://cttir.github.io/attaclone-dedup/>.
 
 ## How to cite this plugin
 
@@ -54,20 +54,20 @@ If Attaclone-dedup contributes to your research workflow, please cite it.
   title   = {{Attaclone-dedup}: A Zotero plugin for detecting and managing duplicate file attachments},
   year    = {2026},
   version = {1.0.0},
-  url     = {https://github.com/r-heller/zotero-attaclone-dedup}
+  url     = {https://github.com/CTTIR/attaclone-dedup}
 }
 ```
 
 **APA**
 
-> Heller, R. (2026). *Attaclone-dedup: A Zotero plugin for detecting and managing duplicate file attachments* (Version 1.0.0) [Computer software]. https://github.com/r-heller/zotero-attaclone-dedup
+> Heller, R. (2026). *Attaclone-dedup: A Zotero plugin for detecting and managing duplicate file attachments* (Version 1.0.0) [Computer software]. https://github.com/CTTIR/attaclone-dedup
 
 > [!NOTE]
 > A DOI has not been minted yet. To create one, archive a release on [Zenodo](https://zenodo.org/account/settings/github/) — enable the repository, cut a GitHub release, and Zenodo will issue a DOI automatically. Add the resulting `doi: 10.5281/zenodo.XXXXXXX` line to `CITATION.cff` and the `doi = {…}` field to the BibTeX block above.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and feature requests welcome on the [issue tracker](https://github.com/r-heller/zotero-attaclone-dedup/issues).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and feature requests welcome on the [issue tracker](https://github.com/CTTIR/attaclone-dedup/issues).
 
 ## License
 

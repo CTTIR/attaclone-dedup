@@ -17,5 +17,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Preferences pane: dry-run mode, keep-strategy (oldest / newest), move-to-trash vs. permanent erase.
 - Localization scaffold (`en-US`).
 
-[Unreleased]: https://github.com/r-heller/zotero-attaclone-dedup/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/r-heller/zotero-attaclone-dedup/releases/tag/v1.0.0
+[Unreleased]: https://github.com/CTTIR/attaclone-dedup/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/CTTIR/attaclone-dedup/releases/tag/v1.0.0

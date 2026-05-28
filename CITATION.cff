@@ -12,8 +12,8 @@ authors:
 version: 1.0.0
 date-released: 2026-05-28
 license: MIT
-repository-code: "https://github.com/r-heller/zotero-attaclone-dedup"
-url: "https://r-heller.github.io/zotero-attaclone-dedup/"
+repository-code: "https://github.com/CTTIR/attaclone-dedup"
+url: "https://cttir.github.io/attaclone-dedup/"
 keywords:
   - zotero
   - zotero-plugin
