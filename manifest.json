@@ -2,6 +2,7 @@
   "manifest_version": 2,
   "name": "Attaclone-dedup",
   "version": "1.0.0",
+  "license": "MIT",
   "description": "Detects and manages duplicate file attachments within Zotero items. Auto-resolves byte-identical copies and lets you decide manually when ambiguous.",
   "homepage_url": "https://github.com/CTTIR/attaclone-dedup",
   "author": "Raban",
