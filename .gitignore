@@ -29,8 +29,8 @@ __pycache__/
 *.pyc
 
 # Local tooling / scratch — never commit
-.claude/
-CLAUDE.md
-MEMORY.md
-.cowork/
-.remember/
+*.tmp
+*.log
+*~
+*.bak
+*.orig
