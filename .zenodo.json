@@ -1,0 +1,33 @@
+{
+  "upload_type": "software",
+  "title": "Attaclone-dedup: Detecting and managing duplicate file attachments in Zotero",
+  "version": "0.1.0",
+  "publication_date": "2026-08-11",
+  "description": "<p>Attaclone-dedup is a plugin for the Zotero reference manager that finds duplicate file attachments within a bibliographic item by comparing content hashes rather than filenames. Byte-identical copies that carry no additional information are resolved automatically, while ambiguous cases are presented in a review dialogue so that the user decides what to keep. Annotations can optionally be merged when copies of a document carry different highlights or notes. It is aimed at researchers whose libraries have accumulated repeated PDF attachments through synchronisation or repeated downloads.</p>",
+  "creators": [
+    {
+      "name": "Heller, Raban"
+    }
+  ],
+  "contributors": [],
+  "license": "mit",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": [
+    "zotero",
+    "zotero-plugin",
+    "reference-management",
+    "deduplication",
+    "attachments",
+    "file-hashing"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/CTTIR/attaclone-dedup",
+      "relation": "isSupplementTo",
+      "scheme": "url",
+      "resource_type": "software"
+    }
+  ],
+  "notes": "Prepared draft. Not yet published."
+}

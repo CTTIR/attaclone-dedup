@@ -1,22 +1,22 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+message: If you use this software, please cite it as below.
 type: software
-title: "Attaclone-dedup: A Zotero plugin for detecting and managing duplicate file attachments"
-abstract: >-
-  A Zotero 9+ plugin that detects duplicate file attachments within items by
-  content hash, auto-resolves byte-identical bare copies, and provides a manual
-  review dialog (with optional annotation merging) for ambiguous cases.
+title: 'Attaclone-dedup: Detecting and managing duplicate file attachments in Zotero'
+abstract: A Zotero 9+ plugin that detects duplicate file attachments within items by content hash, auto-resolves
+  byte-identical bare copies, and provides a manual review dialog (with optional annotation merging) for
+  ambiguous cases.
 authors:
-  - family-names: Heller
-    given-names: Raban
-version: 1.0.0
-date-released: 2026-05-28
+- family-names: Heller
+  given-names: Raban
+version: 0.1.0
+date-released: '2026-08-11'
 license: MIT
-repository-code: "https://github.com/CTTIR/attaclone-dedup"
-url: "https://cttir.github.io/attaclone-dedup/"
+repository-code: https://github.com/CTTIR/attaclone-dedup
+url: https://cttir.github.io/attaclone-dedup/
 keywords:
-  - zotero
-  - zotero-plugin
-  - reference-management
-  - deduplication
-  - pdf
+- zotero
+- zotero-plugin
+- reference-management
+- deduplication
+- pdf
+doi: 10.5281/zenodo.21889978
