@@ -2,6 +2,8 @@
 
 # Attaclone-dedup
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21889978.svg)](https://doi.org/10.5281/zenodo.21889978)
+
 A Zotero plugin that detects and manages duplicate file attachments within Zotero items.
 
 Large Zotero libraries accumulate duplicate PDFs attached to the same parent item — usually because the same file was imported through multiple routes (browser connector, manual drop, snapshot). Attaclone-dedup compares attachments by content hash, automatically removes byte-identical *bare* copies (no annotations, notes, or tags), and queues the ambiguous cases for a manual review dialog so you never lose annotation work without confirming.
@@ -74,3 +76,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and feature requests welcome
 ## License
 
 Released under the [MIT License](LICENSE).
+
+## Citation
+
+If you use this software, please cite it as:
+
+> Heller, R. (2026). *Attaclone-dedup: Detecting and managing duplicate file attachments in Zotero* (Version 0.1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21889978
+
+DOI: [10.5281/zenodo.21889978](https://doi.org/10.5281/zenodo.21889978)
