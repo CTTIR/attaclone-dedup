@@ -1,4 +1,4 @@
-<picture class="cttir-readme-logo"><source class="cttir-logo-dark-source" media="(prefers-color-scheme: dark)" srcset="assets/branding/logo-with-name-dark.png" /><img src="assets/branding/logo-with-name.png" alt="attaclone-dedup hex logo" align="right" width="120" height="155" /></picture>
+<picture class="cttir-readme-logo"><source class="cttir-logo-dark-source" media="(prefers-color-scheme: dark)" srcset="assets/branding/logo-with-name-dark.png" /><img src="assets/branding/logo-with-name.png" alt="attaclone-dedup hex logo" align="right" width="120" height="139" /></picture>
 
 # Attaclone-dedup
 
@@ -105,6 +105,6 @@ Local software setup: vLLM with Python/PyTorch, plus R and RStudio.
 
 ## Branding
 
-The supplied CTTIR Coder Edition v4.1 artwork and its editable R source are in
+The supplied CTTIR Coder Edition v5 artwork and its editable R source are in
 [`tools/branding`](tools/branding/README.md). Use that renderer to reproduce
 the primary badge, alternate editions, and platform icons.
