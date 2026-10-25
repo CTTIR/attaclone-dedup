@@ -3,7 +3,7 @@ title: "Attaclone-dedup"
 subtitle: "A Zotero plugin for detecting and managing duplicate file attachments"
 ---
 
-![](images/icon.svg){width=96px fig-alt="Attaclone-dedup icon — two stacked squares"}
+![](images/icon.svg){height=139px fig-alt="attaclone-dedup hex logo"}
 
 ## What it does
 

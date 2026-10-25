@@ -3,6 +3,7 @@ project:
   output-dir: _site
 
 website:
+  favicon: images/icon-symbol.svg
   title: "Attaclone-dedup"
   description: "A Zotero plugin for detecting and managing duplicate file attachments."
   repo-url: https://github.com/CTTIR/attaclone-dedup
