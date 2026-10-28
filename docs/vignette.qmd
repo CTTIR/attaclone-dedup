@@ -2,6 +2,9 @@
 title: "Walkthrough"
 ---
 
+![attaclone-dedup hex logo](images/icon.svg){height=160px}
+
+
 This vignette walks through a realistic end-to-end use of Attaclone-dedup: install the plugin, configure preferences, run a scan on a small selection, handle an ambiguous case via the manual dialog, then run a full-library sweep.
 
 ## Installation {#installation}

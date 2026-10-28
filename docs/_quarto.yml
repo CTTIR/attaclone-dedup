@@ -9,6 +9,8 @@ website:
   repo-url: https://github.com/CTTIR/attaclone-dedup
   repo-actions: [edit, issue]
   navbar:
+    logo: images/icon.svg
+    logo-alt: "attaclone-dedup hex logo"
     background: primary
     left:
       - href: index.qmd
@@ -27,6 +29,7 @@ format:
     theme:
       dark: darkly
       light: flatly
+    css: branding.css
     toc: true
     toc-depth: 3
     code-copy: true
