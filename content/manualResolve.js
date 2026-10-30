@@ -18,11 +18,7 @@ var DupResolve = {
     const list = doc.getElementById("dup-list");
     const members = this.params.members;
 
-    // Default keeper: oldest by dateAdded.
-    const sorted = [...members].sort(
-      (a, b) => new Date(a.dateAdded) - new Date(b.dateAdded)
-    );
-    const defaultKeepID = sorted[0].id;
+    // Keep everything by default; removal is an explicit review choice.
 
     for (const m of members) {
       const row = doc.createXULElement("vbox");
@@ -38,7 +34,7 @@ var DupResolve = {
       const keepCheck = doc.createXULElement("checkbox");
       keepCheck.setAttribute("label", "Keep");
       keepCheck.id = "keep-" + m.id;
-      keepCheck.checked = m.id === defaultKeepID;
+      keepCheck.checked = true;
       header.appendChild(keepCheck);
 
       const name = doc.createXULElement("description");
@@ -101,6 +97,10 @@ var DupResolve = {
       .filter((id) => !keepIDs.includes(id));
 
     const merge = document.getElementById("dup-merge-annotations").checked;
+    if (merge && keepIDs.length !== 1) {
+      Services.prompt.alert(window, "Attaclone-dedup", "Keep exactly one attachment to transfer annotations.");
+      return false;
+    }
 
     this.params.result = {
       skip: false,

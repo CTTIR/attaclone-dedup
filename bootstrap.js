@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-// Bootstrapped extension entry points for Zotero 7.
+// Bootstrapped extension entry points for Zotero 10.
 
 var chromeHandle;
 
@@ -23,7 +23,7 @@ async function startup({ id, version, rootURI }) {
   // Load the main module into a sandbox-free scope
   Services.scriptloader.loadSubScript(
     rootURI + "content/attaclone-dedup.js",
-    { Zotero, Services, Components, rootURI }
+    { Zotero, Services, Components, IOUtils, rootURI }
   );
 
   await Zotero.AttacloneDedup.init({ id, version, rootURI });

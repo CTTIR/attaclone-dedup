@@ -7,7 +7,7 @@
   width="720"
   height="520"
   buttons="accept,cancel"
-  buttonlabelaccept="Apply"
+  buttonlabelaccept="Continue"
   buttonlabelcancel="Skip this item"
   ondialogaccept="return DupResolve.onAccept();"
   ondialogcancel="return DupResolve.onCancel();"
@@ -29,11 +29,11 @@
     <hbox style="margin-top: 10px;" align="center">
       <checkbox
         id="dup-merge-annotations"
-        label="Merge annotations from deleted copies into the kept copy (PDF only)"
+        label="Move annotations from discarded copies to the kept copy"
       />
     </hbox>
     <description style="margin-top: 6px; color: #888; font-size: 0.9em;">
-      Tip: keep exactly one copy. Anything unchecked under "Keep" will be moved to trash.
+      All copies are kept initially. Uncheck a copy only after review. With Dry run enabled, no changes occur; otherwise unchecked copies go to Trash. Notes and tags are not merged.
     </description>
   </vbox>
 </dialog>

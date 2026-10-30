@@ -17,11 +17,13 @@ Open an issue describing the use case. Keep the scope tight — the plugin delib
 
 ## Development
 
-The plugin is a bootstrapped Zotero 9+ extension; no build step is required for development.
+The plugin is a bootstrapped Zotero 10.0.x extension; the deterministic XPI builder packages only runtime files.
 
-```powershell
-# Repack the .xpi after editing source files
-python _repack.py
+```bash
+# Run safety checks and build without overwriting existing archives
+node --test tests/*.test.js
+python3 tools/build_xpi.py
+python3 tools/check_xpi.py dist/attaclone-dedup-1.0.1.xpi
 ```
 
 To load an unpacked plugin in Zotero, point a file named `attaclone-dedup@r-heller.github.io` (no extension) at the source folder and drop it into Zotero's `extensions/` profile directory. See the [Zotero plugin development docs](https://www.zotero.org/support/dev/client_coding/plugin_development) for details.
@@ -36,5 +38,5 @@ To load an unpacked plugin in Zotero, point a file named `attaclone-dedup@r-hell
 
 1. Fork and create a topic branch.
 2. Make focused changes — one concern per PR.
-3. Test against a real Zotero 9+ installation with a non-trivial library before opening the PR.
+3. Test against a real Zotero 10.0.x installation with a non-trivial library before opening the PR.
 4. Update `CHANGELOG.md` under the `Unreleased` heading.

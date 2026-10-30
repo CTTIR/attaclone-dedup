@@ -1,69 +1,58 @@
 ---
-title: "Walkthrough"
+title: "Safe duplicate review"
 ---
 
-![attaclone-dedup hex logo](images/icon.svg){height=160px}
+Attaclone-dedup 1.0.1 targets Zotero 10.0.x. This is an unpublished safety
+revision; see [the validation record](audit/2026-10-30.md) for observed checks.
 
+## Prepare
 
-This vignette walks through a realistic end-to-end use of Attaclone-dedup: install the plugin, configure preferences, run a scan on a small selection, handle an ambiguous case via the manual dialog, then run a full-library sweep.
+Build using `python3 tools/build_xpi.py` and inspect the XPI with
+`python3 tools/check_xpi.py dist/attaclone-dedup-1.0.1.xpi`. Install in a disposable
+Zotero profile first. Back up the full data directory, including files in
+`storage/`, before real-library use. A database-only snapshot does not replace
+that backup.
 
-## Installation {#installation}
+## Preview a small selection
 
-1. Download `attaclone-dedup-<version>.xpi` from the [Releases page](https://github.com/CTTIR/attaclone-dedup/releases).
-2. In Zotero, open **Tools → Plugins**.
-3. Click the gear icon and choose **Install Plugin From File…**.
-4. Select the downloaded `.xpi`. Restart Zotero if prompted.
+Enable **Dry run** in Zotero settings. This is the default for a new installation;
+previous saved values are retained. Select regular items, then use the item
+context menu's **Check for duplicate attachments** command.
 
-![Tools → Plugins → Install Plugin From File…](images/01-install.png){fig-alt="Zotero plugins window showing the install-from-file option."}
+The plugin groups PDF files only when SHA-256 matches. Failed hashes, missing files,
+empty files, and inspection errors keep every affected attachment and appear in
+the warning summary. Bare duplicates can be resolved automatically only after
+dry run is disabled; the first preview never moves annotations or trashes items.
+HTML snapshots and other file types are excluded. PDFs with incoming/outgoing
+relations, links from any library note (including trashed notes), or external
+annotations are also kept for manual handling. Their links are not rewritten.
 
-## Preferences
+## Review enriched copies
 
-Open **Edit → Settings → Attaclone-dedup**.
+When a duplicate has annotations, notes, or tags, all copies are initially
+checked **Keep**. Uncheck a copy only after reviewing its metadata. Optional
+annotation transfer needs exactly one keeper. The native transaction moves
+annotation identities rather than cloning them and trashes sources only if the
+whole operation succeeds. Notes and tags are not transferred.
+Failed transactions reload attachments and annotation objects from the database;
+if recovery fails, restart Zotero before continuing.
 
-| Preference        | Default   | Effect                                                                   |
-|-------------------|-----------|--------------------------------------------------------------------------|
-| Dry run           | off       | If on, scans report what *would* be removed but do not change anything.  |
-| Keep strategy     | `oldest`  | When auto-resolving, which copy to keep (by `dateAdded`).                |
-| Move to trash     | on        | Removed attachments go to the Zotero trash. Off = permanent erase.       |
+The plugin rechecks contents, identity, permissions, and pending edits before
+applying. Changes since the scan cause refusal and require a fresh scan.
 
-::: {.callout-tip}
-For your first full-library run, enable **Dry run**. Review the summary, then turn it off.
-:::
+## Apply and recover
 
-![Preferences pane](images/02-prefs.png){fig-alt="Attaclone-dedup preferences pane."}
+After reviewing the preview, disable dry run and repeat the small scan. All
+removals go to Zotero Trash. Permanent erase is unsupported even if a legacy
+preference requested it. Inspect retained files and annotations before emptying
+Trash. Restore unwanted removals from Trash. Annotation transfers change their
+parent; restoring a trashed source does not automatically reverse that transfer.
+For a complete prior state, use the full Zotero backup following Zotero's recovery
+instructions.
 
-## Scan a selection
+## Larger scans and Workbench
 
-1. Select one or more items in your library.
-2. Right-click → **Check for duplicate attachments**.
-
-![Item context menu entry](images/03-item-menu.png){fig-alt="Item context menu with Attaclone-dedup entry."}
-
-Bare byte-identical duplicates are removed automatically. Items carrying annotations, notes, or tags are queued for the manual dialog.
-
-## Handle an ambiguous case
-
-If a duplicate group has any member with annotations, notes, or tags, you'll see the manual-resolve dialog:
-
-- Tick the attachments you want to **keep**.
-- Optionally tick **Merge annotations onto the kept PDF** — annotations on attachments you're about to delete are cloned onto the keeper before deletion.
-- Confirm.
-
-![Manual resolve dialog](images/04-manual-dialog.png){fig-alt="Manual resolve dialog with attachment list and merge-annotations checkbox."}
-
-## Scan a collection or the whole library
-
-- A single collection: right-click the collection → **Scan collection for duplicate attachments**.
-- Everything in the library: **Tools → Scan entire library for duplicate attachments**. You'll be asked to confirm.
-
-A progress window runs during the sweep. A summary dialog reports items scanned, duplicates found, auto-resolved, and how many were sent to manual review.
-
-![Summary dialog after a full scan](images/05-summary.png){fig-alt="Summary dialog showing scan statistics."}
-
-## Recovery
-
-If `Move to trash` is on (the default), removed attachments live in the Zotero trash and can be restored from there. If you turned trash off and erased something you wanted to keep, restore from a Zotero database backup.
-
-## Reporting issues
-
-Please include your Zotero version, OS, plugin version, and any `Attaclone-dedup:`-prefixed lines from **Help → Debug Output Logging** when filing a bug. See the [issue tracker](https://github.com/CTTIR/attaclone-dedup/issues).
+Collection and full-library commands follow the same protections and serialize
+scans. Workbench's offline manifest becomes stale after attachment changes: close
+Zotero and rerun extraction/audit when finished. Keep live plugin writes separate
+from Workbench reads. Report warnings and plugin/Zotero versions with any issue.

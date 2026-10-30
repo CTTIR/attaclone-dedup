@@ -4,70 +4,79 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21889978.svg)](https://doi.org/10.5281/zenodo.21889978)
 
-A Zotero plugin that detects and manages duplicate file attachments within Zotero items.
+A Zotero plugin for reviewing byte-identical PDF attachments within one parent
+item. Version **1.0.1 is an unpublished safety revision for Zotero 10.0.x**.
+New installations preview changes by default. Actual changes move attachments to
+Zotero Trash; permanent erase is no longer supported.
 
-Large Zotero libraries accumulate duplicate PDFs attached to the same parent item — usually because the same file was imported through multiple routes (browser connector, manual drop, snapshot). Attaclone-dedup compares attachments by content hash, automatically removes byte-identical *bare* copies (no annotations, notes, or tags), and queues the ambiguous cases for a manual review dialog so you never lose annotation work without confirming.
+## What it checks
 
-## Features
+- SHA-256 of existing, nonempty files; names and file sizes alone never establish
+  a duplicate. Missing files and failed metadata/hash reads are reported and kept.
+- Annotations (including trashed annotations), notes, tags, current permissions,
+  pending edits, and parent/library identity before changing anything.
+- Current file content and metadata again when applying a reviewed selection.
+- Native annotation transfer and trash operations in one Zotero transaction.
+  A failed transfer/save rolls back; annotation keys are preserved.
+- PDFs with incoming/outgoing relations, note references, or external annotations
+  are kept. Other file types, including multi-file HTML snapshots, are excluded.
 
-- **Content-hash matching** — duplicates are identified by MD5 of file contents, with filename + size as a fallback when the hash is unavailable.
-- **Safe auto-resolution** — only byte-identical copies with no annotations, notes, or tags are removed without asking.
-- **Manual review dialog** — when at least one duplicate carries annotations, notes, or tags, you choose which to keep and optionally **merge annotations** from the discarded PDFs onto the keeper.
-- **Three scan scopes** —
-  - *Item* context menu → "Check for duplicate attachments"
-  - *Collection* context menu → "Scan collection for duplicate attachments"
-  - *Tools* menu → "Scan entire library for duplicate attachments"
-- **Configurable** — keep oldest vs. newest, move to trash vs. permanent erase, dry-run mode. Configure under *Edit → Settings → Attaclone-dedup*.
+Automatic resolution is restricted to verified identical copies with no
+annotations, notes, or tags. Other verified groups open a manual dialog that
+initially keeps every copy. A transfer requires exactly one keeper. Notes and
+tags are not merged; retain any attachment whose metadata you need.
+If rollback cannot reload cached items, further changes are blocked until Zotero
+restarts. Note references are checked across the library, including trashed notes.
 
-## Compatibility
+## Build and install the candidate
 
-Zotero 9 and later.
+No dependency installation is needed to build. Use Python 3.10+ and Node.js 18+
+for package and regression checks:
 
-## Installation
+```bash
+node --test tests/*.test.js
+python3 tools/build_xpi.py
+python3 tools/check_xpi.py dist/attaclone-dedup-1.0.1.xpi
+```
 
-1. Download `attaclone-dedup-<version>.xpi` from the [Releases page](https://github.com/CTTIR/attaclone-dedup/releases).
-2. In Zotero, open **Tools → Plugins**.
-3. Click the gear icon → **Install Plugin From File…**, then select the downloaded `.xpi`.
-4. Restart Zotero if prompted.
+The builder uses an explicit runtime-file list, fixed ZIP metadata, and refuses
+to overwrite a different existing archive. `python3 _repack.py` remains a
+compatible entry point. Previous archives are preserved.
 
-## Usage
+Install the resulting XPI through **Tools → Plugins → Install Plugin From File**
+in a disposable Zotero profile first. Review [the audit and validation record](docs/audit/2026-10-30.md)
+before using it on your main library. The revised source and tests do not by
+themselves establish that every live UI path works; live qualification is tracked
+separately. The declared maximum is the tested minor line, `10.0.*`.
 
-1. Select one or more items in your library, or open a collection.
-2. Right-click and choose **Check for duplicate attachments** (item menu) or **Scan collection for duplicate attachments** (collection menu). For a full library sweep, use **Tools → Scan entire library for duplicate attachments**.
-3. Byte-identical bare duplicates are removed automatically (subject to your *keep* preference and dry-run setting).
-4. Anything ambiguous opens the manual-resolve dialog: choose which attachments to keep, optionally tick *merge annotations*, and confirm.
-5. A summary dialog reports how many items were scanned, duplicates found, auto-resolved, and sent to manual review.
+## First use
 
-### Recommended first run
+1. Keep a full backup of your Zotero data directory, including attachment storage.
+2. Confirm **Dry run** is enabled in Zotero's Attaclone-dedup settings. Existing
+   saved preferences are retained, so an earlier disabled value stays disabled.
+3. Scan a small selection with **Check for duplicate attachments**. Review the
+   warnings and the preview count; dry run does not even transfer annotations.
+4. For manual groups, all copies are kept initially. Choose removals explicitly.
+5. Disable dry run only when ready to move verified copies to Trash. Restore
+   mistaken removals from Trash; do not empty Trash before checking the results.
 
-Enable **Dry run** in preferences before your first full-library scan. Attaclone-dedup will log what it *would* delete without touching the library.
+Collection and whole-library scans are also available. Another scan cannot start
+while one is running. Read-only libraries and items with unsaved changes are kept.
+Each scan retains its initial preview mode. Enabling dry run or disabling the
+plugin cancels further writes; a later apply requires another scan.
+
+## Using this with Zotero Library Workbench
+
+Run Workbench backup/extraction/audit with Zotero closed. Close Workbench operations
+before running live plugin changes. After deduplication, run Workbench extraction
+and audit again: the previous manifest describes the old attachment set. Workbench
+snapshots cover the database only; full recovery needs the attachment files too.
 
 ## Documentation
 
-A full walkthrough vignette is published at <https://cttir.github.io/attaclone-dedup/>.
-
-## How to cite this plugin
-
-If Attaclone-dedup contributes to your research workflow, please cite it.
-
-**BibTeX**
-
-```bibtex
-@software{heller_attaclone_dedup_2026,
-  author  = {Heller, Raban},
-  title   = {{Attaclone-dedup}: A Zotero plugin for detecting and managing duplicate file attachments},
-  year    = {2026},
-  version = {1.0.0},
-  url     = {https://github.com/CTTIR/attaclone-dedup}
-}
-```
-
-**APA**
-
-> Heller, R. (2026). *Attaclone-dedup: A Zotero plugin for detecting and managing duplicate file attachments* (Version 1.0.0) [Computer software]. https://github.com/CTTIR/attaclone-dedup
-
-> [!NOTE]
-> A DOI has not been minted yet. To create one, archive a release on [Zenodo](https://zenodo.org/account/settings/github/) — enable the repository, cut a GitHub release, and Zenodo will issue a DOI automatically. Add the resulting `doi: 10.5281/zenodo.XXXXXXX` line to `CITATION.cff` and the `doi = {…}` field to the BibTeX block above.
+See [the walkthrough](docs/vignette.qmd) and [the local safety audit](docs/audit/2026-10-30.md).
+The hosted site and archived citation below may describe an earlier published
+version; this working revision has not been released or assigned a new DOI.
 
 ## Contributing
 
@@ -77,9 +86,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Bug reports and feature requests welcome
 
 Released under the [MIT License](LICENSE).
 
-## Citation
+## Archived citation
 
-If you use this software, please cite it as:
+The existing archive record is retained below. It does not claim publication of this working revision:
 
 > Heller, R. (2026). *Attaclone-dedup: Detecting and managing duplicate file attachments in Zotero* (Version 0.1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.21889978
 
