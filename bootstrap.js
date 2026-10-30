@@ -21,9 +21,10 @@ async function startup({ id, version, rootURI }) {
   ]);
 
   // Load the main module into a sandbox-free scope
+  Components.utils.importGlobalProperties(["IOUtils"]);
   Services.scriptloader.loadSubScript(
     rootURI + "content/attaclone-dedup.js",
-    { Zotero, Services, Components, rootURI }
+    { Zotero, Services, Components, IOUtils, rootURI }
   );
 
   await Zotero.AttacloneDedup.init({ id, version, rootURI });

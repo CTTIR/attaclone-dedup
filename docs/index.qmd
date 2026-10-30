@@ -7,15 +7,15 @@ subtitle: "A Zotero plugin for detecting and managing duplicate file attachments
 
 ## What it does
 
-Large Zotero libraries accumulate duplicate PDFs attached to the same parent item — usually because the same file was imported through multiple routes (browser connector, manual drop, snapshot). **Attaclone-dedup** compares attachments by content hash, automatically removes byte-identical *bare* copies, and queues the ambiguous cases (anything carrying annotations, notes, or tags) for a manual review dialog so you never lose annotation work without confirming.
+Large Zotero libraries accumulate duplicate PDFs attached to the same parent item — usually because the same file was imported through multiple routes (browser connector, manual drop, snapshot). **Attaclone-dedup** compares attachments by content hash, moves verified bare duplicates to Trash, and queues the ambiguous cases (anything carrying annotations, notes, or tags) for a manual review dialog so you never lose annotation work without confirming.
 
 ## Highlights
 
-- Content-hash matching (MD5), with filename + size fallback.
-- Safe auto-resolution: only byte-identical, annotation-free duplicates are removed without asking.
+- Zotero content-hash matching (MD5). Missing hashes are reported and left unchanged.
+- Automatic resolution requires verified file and metadata state. Embedded annotations and unreadable metadata require review or block changes.
 - Manual review dialog with optional **annotation merging** from discarded PDFs to the kept PDF.
 - Scan scopes: selected items, current collection, or entire library.
-- Dry-run mode for safe rehearsals.
+- Dry-run mode defaults on for fresh installations and prevents every write. All removals use Trash.
 
 ## Get started
 
@@ -26,7 +26,7 @@ Large Zotero libraries accumulate duplicate PDFs attached to the same parent ite
 
 ## Compatibility
 
-Zotero 9 and later.
+The manifest permits Zotero 7–9. Host qualification is pending; Zotero 10 is outside the declared range.
 
 ## Citation
 
@@ -45,7 +45,7 @@ canonical metadata lives in
   version = {1.0.0},
   license = {MIT},
   url     = {https://github.com/CTTIR/attaclone-dedup},
-  note    = {Zotero 9+ plugin}
+  note    = {Development build; host qualification pending}
 }
 ```
 

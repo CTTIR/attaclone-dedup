@@ -18,11 +18,11 @@ var DupResolve = {
     const list = doc.getElementById("dup-list");
     const members = this.params.members;
 
-    // Default keeper: oldest by dateAdded.
-    const sorted = [...members].sort(
-      (a, b) => new Date(a.dateAdded) - new Date(b.dateAdded)
-    );
-    const defaultKeepID = sorted[0].id;
+    const defaultKeepID = this.params.DupMgr._pickKeeper(members).id;
+    if (this.params.DupMgr.getPref("dryRun")) {
+      doc.getElementById("dup-intro").textContent =
+        "Dry run: preview your selection. No attachments or annotations will change.";
+    }
 
     for (const m of members) {
       const row = doc.createXULElement("vbox");
@@ -57,12 +57,14 @@ var DupResolve = {
         m.annotationCount > 0 ? `, ${m.annotationCount} annotation(s)` : "";
       const tagText = m.tagCount > 0 ? `, tags: ${m.tags.join(", ")}` : "";
       const noteText = m.hasNote ? ", has note" : "";
+      const safetyText = !m.safetyKnown ? ", metadata incomplete: cannot apply changes" :
+        (m.embeddedAnnotations ? ", embedded PDF annotations" : "");
       detail.textContent =
         `${m.contentType || "unknown type"} · ${sizeKB} · ` +
         `added ${new Date(m.dateAdded).toLocaleString()}` +
         annText +
         tagText +
-        noteText;
+        noteText + safetyText;
       row.appendChild(detail);
 
       if (m.path) {
@@ -101,6 +103,10 @@ var DupResolve = {
       .filter((id) => !keepIDs.includes(id));
 
     const merge = document.getElementById("dup-merge-annotations").checked;
+    if (merge && keepIDs.length !== 1) {
+      Services.prompt.alert(window, "Attaclone-dedup", "Keep exactly one PDF to merge annotations.");
+      return false;
+    }
 
     this.params.result = {
       skip: false,

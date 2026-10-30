@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Missing hashes and unreadable annotations/notes no longer authorize automatic
+  removal; embedded PDF annotations prevent automatic resolution.
+- Dry run prevents annotation writes as well as attachment removals.
+- Group changes are revalidated and transactional; failures propagate instead
+  of deleting sources after a failed annotation move.
+- Library scans consume item objects correctly; bootstrap supplies IOUtils;
+  simultaneous scans are refused and menu errors are surfaced.
+
+### Changed
+
+- Removals now use Trash only. The old permanent-erase preference is preserved
+  but ignored. New installations default to dry run.
+- Annotation merging moves existing internal annotation objects and requires
+  one keeper. Package builds are reproducible and write to `dist/`.
+
+Host qualification is required before release.
+
+
 ## [1.0.0] - 2026-05-28
 
 ### Added

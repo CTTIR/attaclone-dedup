@@ -34,3 +34,7 @@ __pycache__/
 *~
 *.bak
 *.orig
+
+# Development build output
+dist/
+__pycache__/

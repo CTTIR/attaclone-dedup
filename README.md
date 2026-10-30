@@ -6,26 +6,26 @@
 
 A Zotero plugin that detects and manages duplicate file attachments within Zotero items.
 
-Large Zotero libraries accumulate duplicate PDFs attached to the same parent item — usually because the same file was imported through multiple routes (browser connector, manual drop, snapshot). Attaclone-dedup compares attachments by content hash, automatically removes byte-identical *bare* copies (no annotations, notes, or tags), and queues the ambiguous cases for a manual review dialog so you never lose annotation work without confirming.
+Large Zotero libraries accumulate duplicate PDFs attached to the same parent item — usually because the same file was imported through multiple routes (browser connector, manual drop, snapshot). Attaclone-dedup compares attachments by content hash, moves verified content-hash matches to Trash only when their annotation, note and tag state is known to be empty, and queues the ambiguous cases for a manual review dialog so you never lose annotation work without confirming.
 
 ## Features
 
-- **Content-hash matching** — duplicates are identified by MD5 of file contents, with filename + size as a fallback when the hash is unavailable.
-- **Safe auto-resolution** — only byte-identical copies with no annotations, notes, or tags are removed without asking.
+- **Content-hash matching** — Zotero MD5 hashes identify candidates. Attachments without a readable hash are counted as unverified and left unchanged; filename and size are never identity evidence.
+- **Automatic resolution** — matching hashes, file sizes, content types and link modes are required. Unknown metadata or embedded PDF annotations prevents automatic removal.
 - **Manual review dialog** — when at least one duplicate carries annotations, notes, or tags, you choose which to keep and optionally **merge annotations** from the discarded PDFs onto the keeper.
 - **Three scan scopes** —
   - *Item* context menu → "Check for duplicate attachments"
   - *Collection* context menu → "Scan collection for duplicate attachments"
   - *Tools* menu → "Scan entire library for duplicate attachments"
-- **Configurable** — keep oldest vs. newest, move to trash vs. permanent erase, dry-run mode. Configure under *Edit → Settings → Attaclone-dedup*.
+- **Configurable** — keep oldest vs. newest and dry-run mode. Fresh installations default to dry run. All removals go to Trash; the legacy permanent-erase preference is ignored without altering its stored value.
 
 ## Compatibility
 
-Zotero 9 and later.
+The manifest permits Zotero 7–9. This development build still requires host qualification; Zotero 10 is outside the declared range.
 
 ## Installation
 
-1. Download `attaclone-dedup-<version>.xpi` from the [Releases page](https://github.com/CTTIR/attaclone-dedup/releases).
+1. Build the development candidate using the commands below. No GitHub Release was available at the 30 October 2026 audit.
 2. In Zotero, open **Tools → Plugins**.
 3. Click the gear icon → **Install Plugin From File…**, then select the downloaded `.xpi`.
 4. Restart Zotero if prompted.
@@ -34,13 +34,34 @@ Zotero 9 and later.
 
 1. Select one or more items in your library, or open a collection.
 2. Right-click and choose **Check for duplicate attachments** (item menu) or **Scan collection for duplicate attachments** (collection menu). For a full library sweep, use **Tools → Scan entire library for duplicate attachments**.
-3. Byte-identical bare duplicates are removed automatically (subject to your *keep* preference and dry-run setting).
-4. Anything ambiguous opens the manual-resolve dialog: choose which attachments to keep, optionally tick *merge annotations*, and confirm.
+3. Verified bare duplicates become automatic-resolution candidates. Dry run reports them without writes; with dry run disabled, they move to Trash.
+4. Content-hash matches with annotations, notes or tags open the review dialog. Keep at least one attachment. Annotation merging requires one PDF keeper and moves existing internal annotations without changing their identities. Metadata that cannot be verified blocks application of the group.
 5. A summary dialog reports how many items were scanned, duplicates found, auto-resolved, and sent to manual review.
 
 ### Recommended first run
 
-Enable **Dry run** in preferences before your first full-library scan. Attaclone-dedup will log what it *would* delete without touching the library.
+Fresh installations start with **Dry run** enabled; existing explicit settings are preserved. Dry run performs no annotation or attachment writes, including from manual review. Verify the candidate in a disposable synthetic profile before using a real library.
+
+## Development build and recovery
+
+Prerequisites: Node.js 24 and Python 3.9 or newer. No npm dependencies are needed.
+
+```sh
+node --test tests/*.test.cjs
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 _repack.py
+```
+
+The candidate is `dist/attaclone-dedup-1.0.0-dev.xpi`. The builder includes the
+MIT licence, verifies source/archive equality and produces reproducible bytes.
+Updates are manual until an update feed is published. See the
+[maintenance record](docs/maintenance-2026-10-30.md) for qualification steps.
+
+Each duplicate group is applied in one database transaction. A failure rolls
+back that group; previously completed groups remain applied. Removed attachments
+can be restored from Zotero Trash. A completed annotation move is not undone by
+restoring a source PDF: the annotations remain on the chosen keeper. Use
+Zotero's own Empty Trash action only after review.
 
 ## Documentation
 
@@ -67,7 +88,7 @@ If Attaclone-dedup contributes to your research workflow, please cite it.
 > Heller, R. (2026). *Attaclone-dedup: A Zotero plugin for detecting and managing duplicate file attachments* (Version 1.0.0) [Computer software]. https://github.com/CTTIR/attaclone-dedup
 
 > [!NOTE]
-> A DOI has not been minted yet. To create one, archive a release on [Zenodo](https://zenodo.org/account/settings/github/) — enable the repository, cut a GitHub release, and Zenodo will issue a DOI automatically. Add the resulting `doi: 10.5281/zenodo.XXXXXXX` line to `CITATION.cff` and the `doi = {…}` field to the BibTeX block above.
+> DOI registration is unverified. Historical citation metadata is retained; the manifest declares 1.0.0 while the legacy citation records 0.1.0. Reconcile release metadata against a qualified release before publishing.
 
 ## Contributing
 

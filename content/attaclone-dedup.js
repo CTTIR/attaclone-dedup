@@ -6,6 +6,9 @@ Zotero.AttacloneDedup = {
   version: null,
   rootURI: null,
   initialized: false,
+  _processing: false,
+  _activePrefs: null,
+  _unverifiedAttachments: 0,
   prefBranch: "extensions.attaclone-dedup.",
   // Track injected DOM nodes per window for clean removal.
   _addedElements: new WeakMap(),
@@ -33,9 +36,8 @@ Zotero.AttacloneDedup = {
 
   _setDefaultPrefs() {
     const defaults = {
-      dryRun: false,
+      dryRun: true,
       keepStrategy: "oldest", // oldest | newest
-      moveToTrash: true, // false = permanent erase (discouraged)
     };
     for (const [key, val] of Object.entries(defaults)) {
       const full = this.prefBranch + key;
@@ -46,7 +48,10 @@ Zotero.AttacloneDedup = {
   },
 
   getPref(key) {
-    return Zotero.Prefs.get(this.prefBranch + key, true);
+    const value = this._activePrefs ? this._activePrefs[key] : Zotero.Prefs.get(this.prefBranch + key, true);
+    if (key === "dryRun") return value !== false;
+    if (key === "keepStrategy") return value === "newest" ? "newest" : "oldest";
+    return value;
   },
 
   _registerPrefPane() {
@@ -75,72 +80,50 @@ Zotero.AttacloneDedup = {
 
   // ---- detection ----------------------------------------------------------
 
-  // Compute a comparison key for an attachment. Prefers content hash;
-  // falls back to filename + filesize when hash is unavailable.
+  // Only a content hash can identify a duplicate candidate. A filename and
+  // size cannot establish identity when the file cannot be read.
   async _attachmentKey(attachment) {
     try {
-      const hash = await attachment.attachmentHash; // md5 of file contents
-      if (hash) return "h:" + hash;
+      const hash = await attachment.attachmentHash;
+      return typeof hash === "string" && /^[0-9a-f]{32}$/i.test(hash)
+        ? "h:" + hash.toLowerCase() : null;
     } catch (e) {
-      this._log("Hash failed for item " + attachment.id + ": " + e);
+      this._log("Hash unavailable for attachment " + attachment.id);
+      return null;
     }
-    // Fallback
-    let name = attachment.attachmentFilename || "";
-    let size = 0;
-    try {
-      const path = await attachment.getFilePathAsync();
-      if (path) {
-        const info = await IOUtils.stat(path);
-        size = info.size || 0;
-      }
-    } catch (e) {
-      this._log("Stat failed for item " + attachment.id + ": " + e);
-    }
-    return "f:" + name + ":" + size;
   },
 
-  // Returns metadata used to decide whether auto-resolution is safe.
   async _attachmentMeta(attachment) {
-    let annotationCount = 0;
-    try {
-      if (attachment.isPDFAttachment && attachment.isPDFAttachment()) {
-        annotationCount = attachment.getAnnotations
-          ? attachment.getAnnotations().length
-          : 0;
-      }
-    } catch (e) {
-      annotationCount = 0;
-    }
-    const tags = attachment.getTags ? attachment.getTags() : [];
-    let note = "";
-    try {
-      note = attachment.getNote ? attachment.getNote() : "";
-    } catch (e) {
-      note = "";
-    }
+    let safetyKnown = true;
+    let annotationCount = null;
+    let tags = [];
+    let hasNote = false;
+    let embeddedAnnotations = false;
     let size = 0;
     let path = "";
+    try { annotationCount = attachment.getAnnotations(true).length; }
+    catch (e) { safetyKnown = false; }
+    try { tags = attachment.getTags(); }
+    catch (e) { safetyKnown = false; }
+    try { hasNote = !!attachment.getNote().trim(); }
+    catch (e) { safetyKnown = false; }
+    try { embeddedAnnotations = await attachment.hasEmbeddedAnnotations(); }
+    catch (e) { safetyKnown = false; }
     try {
       path = await attachment.getFilePathAsync();
-      if (path) {
-        const info = await IOUtils.stat(path);
-        size = info.size || 0;
-      }
-    } catch (e) {
-      /* linked / missing file */
-    }
+      if (!path) throw new Error("File unavailable");
+      const info = await IOUtils.stat(path);
+      if (info.type !== "regular" || !Number.isFinite(info.size)) throw new Error("File unavailable");
+      size = info.size;
+    } catch (e) { safetyKnown = false; }
     return {
       id: attachment.id,
       key: await this._attachmentKey(attachment),
       filename: attachment.attachmentFilename || attachment.getDisplayTitle(),
       contentType: attachment.attachmentContentType || "",
-      dateAdded: attachment.dateAdded,
-      size,
-      path,
-      annotationCount,
-      tagCount: tags.length,
-      tags: tags.map((t) => t.tag),
-      hasNote: !!(note && note.trim().length),
+      dateAdded: attachment.dateAdded, size, path, annotationCount,
+      tagCount: tags.length, tags: tags.map(t => t.tag), hasNote,
+      embeddedAnnotations, safetyKnown,
       linkMode: attachment.attachmentLinkMode,
     };
   },
@@ -160,7 +143,9 @@ Zotero.AttacloneDedup = {
       if (att.attachmentLinkMode === Zotero.Attachments.LINK_MODE_LINKED_URL) {
         continue;
       }
-      metas.push(await this._attachmentMeta(att));
+      const meta = await this._attachmentMeta(att);
+      if (!meta.key) { this._unverifiedAttachments++; continue; }
+      metas.push(meta);
     }
 
     const byKey = new Map();
@@ -178,60 +163,105 @@ Zotero.AttacloneDedup = {
 
   // ---- resolution ---------------------------------------------------------
 
-  // Decide whether a duplicate group can be auto-resolved safely.
-  // Safe = same content key AND at most one member carries unique
-  // annotations/notes/tags (the rest are "bare" copies).
   _canAutoResolve(group) {
-    const enriched = group.members.filter(
-      (m) => m.annotationCount > 0 || m.hasNote || m.tagCount > 0
-    );
-    // Only auto-resolve when zero members are enriched: pure byte-identical
-    // bare copies. Anything with annotations/notes/tags goes to manual.
-    return enriched.length === 0;
+    if (!group.key || !group.key.startsWith("h:") || group.members.length < 2) return false;
+    const first = group.members[0];
+    return group.members.every(m => m.key === group.key && m.safetyKnown &&
+      m.annotationCount === 0 && !m.embeddedAnnotations && !m.hasNote && m.tagCount === 0 &&
+      m.linkMode === first.linkMode && m.contentType === first.contentType && m.size === first.size);
   },
 
   _pickKeeper(members) {
-    const strategy = this.getPref("keepStrategy");
-    const sorted = [...members].sort((a, b) => {
-      const da = new Date(a.dateAdded).getTime();
-      const db = new Date(b.dateAdded).getTime();
-      return da - db;
-    });
-    return strategy === "newest" ? sorted[sorted.length - 1] : sorted[0];
+    const time = m => Date.parse(String(m.dateAdded).replace(" ", "T") + "Z");
+    if (!members.length || members.some(m => !Number.isFinite(time(m)))) {
+      throw new Error("Cannot select a keeper with missing or invalid dates.");
+    }
+    const sorted = [...members].sort((a, b) => time(a) - time(b) || a.id - b.id);
+    return this.getPref("keepStrategy") === "newest" ? sorted[sorted.length - 1] : sorted[0];
   },
 
   async _deleteAttachments(ids) {
-    const dryRun = this.getPref("dryRun");
-    if (dryRun) {
-      this._log("[DRY RUN] Would delete attachment IDs: " + ids.join(", "));
-      return;
-    }
-    const toTrash = this.getPref("moveToTrash");
+    if (this.getPref("dryRun")) return;
+    Zotero.DB.requireTransaction();
     for (const id of ids) {
-      const att = Zotero.Items.get(id);
-      if (!att) continue;
-      if (toTrash) {
-        att.deleted = true;
-        await att.saveTx();
-      } else {
-        await att.eraseTx();
-      }
+      const attachment = Zotero.Items.get(id);
+      if (!attachment || !attachment.isFileAttachment()) throw new Error("Attachment is unavailable.");
+      // Erase removes files before a database rollback could restore them.
+      // Keep removals reversible; legacy moveToTrash=false is no longer used.
+      attachment.deleted = true;
+      await attachment.save();
     }
+  },
+
+  async _resolveGroup(win, item, group, keepIDs, deleteIDs, mergeAnnotations = false, automatic = false) {
+    const reviewed = new Set(group.members.map(m => m.id));
+    const selected = [...keepIDs, ...deleteIDs];
+    if (!keepIDs.length || selected.length !== reviewed.size ||
+        new Set(selected).size !== selected.length || selected.some(id => !reviewed.has(id))) {
+      throw new Error("Selection does not match the reviewed duplicate group.");
+    }
+    if (mergeAnnotations && keepIDs.length !== 1) throw new Error("Keep exactly one PDF to merge annotations.");
+    if (!deleteIDs.length) return 0;
+    if (this.getPref("dryRun")) {
+      this._log("[DRY RUN] Would resolve " + deleteIDs.length + " duplicate attachment(s).");
+      return 0;
+    }
+
+    await Zotero.DB.executeTransaction(async () => {
+      const current = [];
+      for (const old of group.members) {
+        const attachment = Zotero.Items.get(old.id);
+        if (!attachment || attachment.deleted || !attachment.isFileAttachment() ||
+            attachment.parentItemID !== item.id || attachment.libraryID !== item.libraryID) {
+          throw new Error("An attachment changed since the scan. Scan again before applying changes.");
+        }
+        const meta = await this._attachmentMeta(attachment);
+        if (!meta.key || meta.key !== group.key || !meta.safetyKnown ||
+            meta.annotationCount !== old.annotationCount || meta.hasNote !== old.hasNote ||
+            JSON.stringify(meta.tags) !== JSON.stringify(old.tags) ||
+            meta.embeddedAnnotations !== old.embeddedAnnotations || meta.size !== old.size ||
+            meta.linkMode !== old.linkMode || meta.contentType !== old.contentType) {
+          throw new Error("Attachment content or metadata changed, or could not be verified. Scan again.");
+        }
+        current.push(meta);
+      }
+      if (automatic && !this._canAutoResolve({ key: group.key, members: current })) {
+        throw new Error("This group is no longer safe for automatic resolution.");
+      }
+      if (mergeAnnotations) await this._mergeAnnotations(keepIDs[0], deleteIDs);
+      await this._deleteAttachments(deleteIDs);
+    });
+    return deleteIDs.length;
   },
 
   // Run detection + auto-resolution across a list of regular items.
   // Items needing manual review are queued and surfaced one dialog at a time.
   async processItems(items, win) {
+    if (this._processing) throw new Error("An attachment scan is already in progress.");
+    this._processing = true;
+    try {
+      this._activePrefs = Object.fromEntries(["dryRun", "keepStrategy"].map(
+        key => [key, Zotero.Prefs.get(this.prefBranch + key, true)]));
+      this._unverifiedAttachments = 0;
+      return await this._processItems(items, win);
+    } finally {
+      this._processing = false;
+      this._activePrefs = null;
+    }
+  },
+
+  async _processItems(items, win) {
     const summary = {
       itemsScanned: 0,
       duplicatesFound: 0,
       autoResolved: 0,
+      autoPlanned: 0,
       manualQueued: 0,
     };
     const manualQueue = [];
 
     for (const item of items) {
-      if (!item.isRegularItem()) continue;
+      if (!item || item.deleted || !item.isRegularItem()) continue;
       summary.itemsScanned++;
       const groups = await this._findDuplicateGroups(item);
       for (const group of groups) {
@@ -241,10 +271,11 @@ Zotero.AttacloneDedup = {
           const removeIDs = group.members
             .filter((m) => m.id !== keeper.id)
             .map((m) => m.id);
-          await this._deleteAttachments(removeIDs);
-          summary.autoResolved += removeIDs.length;
+          summary.autoPlanned += removeIDs.length;
+          const resolved = await this._resolveGroup(win, item, group, [keeper.id], removeIDs, false, true);
+          summary.autoResolved += resolved;
           this._log(
-            `Auto-resolved item ${item.id}: kept ${keeper.id}, removed ${removeIDs.join(", ")}`
+            `Item ${item.id}: ${resolved} duplicate attachment(s) removed`
           );
         } else {
           summary.manualQueued++;
@@ -258,6 +289,7 @@ Zotero.AttacloneDedup = {
       await this._openManualDialog(win, entry.item, entry.group);
     }
 
+    summary.unverifiedAttachments = this._unverifiedAttachments;
     this._showSummary(win, summary);
     return summary;
   },
@@ -282,31 +314,25 @@ Zotero.AttacloneDedup = {
       return;
     }
     const { deleteIDs, keepIDs, mergeAnnotations } = params.result;
-    if (mergeAnnotations && keepIDs.length === 1) {
-      await this._mergeAnnotations(keepIDs[0], deleteIDs);
-    }
-    await this._deleteAttachments(deleteIDs);
-    this._log(
-      `Manual resolve item ${item.id}: kept ${keepIDs.join(",")}, deleted ${deleteIDs.join(",")}`
-    );
+    const removed = await this._resolveGroup(win, item, group, keepIDs, deleteIDs, mergeAnnotations);
+    this._log("Manual resolution removed " + removed + " attachment(s).");
   },
 
-  // Move annotations from soon-to-be-deleted PDFs onto the kept PDF.
+  // Move existing annotation objects so their identity and links are preserved.
   async _mergeAnnotations(keepID, deleteIDs) {
+    if (this.getPref("dryRun")) return;
+    Zotero.DB.requireTransaction();
     const keeper = Zotero.Items.get(keepID);
-    if (!keeper || !keeper.isPDFAttachment || !keeper.isPDFAttachment()) return;
-    for (const did of deleteIDs) {
-      const src = Zotero.Items.get(did);
-      if (!src || !src.getAnnotations) continue;
-      const annotations = src.getAnnotations();
-      for (const ann of annotations) {
-        try {
-          const newAnn = ann.clone(keeper.libraryID);
-          newAnn.parentID = keeper.id;
-          await newAnn.saveTx();
-        } catch (e) {
-          this._log("Annotation merge failed: " + e);
+    if (!keeper || !keeper.isPDFAttachment()) throw new Error("Annotation merging requires a PDF keeper.");
+    for (const id of deleteIDs) {
+      const source = Zotero.Items.get(id);
+      if (!source || !source.isPDFAttachment()) throw new Error("Annotation merging requires PDF sources.");
+      for (const annotation of source.getAnnotations(true)) {
+        if (annotation.annotationIsExternal) {
+          throw new Error("Embedded annotations cannot be moved. Keep the original PDF.");
         }
+        annotation.parentItemID = keeper.id;
+        await annotation.save();
       }
     }
   },
@@ -321,10 +347,21 @@ Zotero.AttacloneDedup = {
     const msg =
       `Items scanned: ${s.itemsScanned}\n` +
       `Duplicate attachments found: ${s.duplicatesFound}\n` +
+      `Auto-resolution candidates: ${s.autoPlanned}\n` +
       `Auto-resolved: ${s.autoResolved}\n` +
+      `Attachments without a readable hash: ${s.unverifiedAttachments}\n` +
       `Sent to manual review: ${s.manualQueued}` +
       dryNote;
     ps.alert(win, "Attaclone-dedup", msg);
+  },
+
+  async _runFromMenu(win, operation) {
+    try { await operation(); }
+    catch (error) {
+      this._log("Scan stopped: " + error);
+      Services.prompt.alert(win, "Attaclone-dedup", "Scan stopped: " + error.message +
+        "\nThe scan did not finish. Review any groups already completed.");
+    }
   },
 
   // ---- entry points -------------------------------------------------------
@@ -369,10 +406,7 @@ Zotero.AttacloneDedup = {
     if (!confirmed) return;
 
     const libraryID = win.ZoteroPane.getSelectedLibraryID();
-    const itemIDs = await Zotero.Items.getAll(libraryID, true);
-    const items = Zotero.Items.get(itemIDs).filter((i) =>
-      i.isRegularItem()
-    );
+    const items = (await Zotero.Items.getAll(libraryID, true, false)).filter(i => i.isRegularItem());
 
     const pw = new Zotero.ProgressWindow({ closeOnClick: false });
     pw.changeHeadline("Scanning for duplicate attachments…");
@@ -387,7 +421,7 @@ Zotero.AttacloneDedup = {
   // ---- UI injection -------------------------------------------------------
 
   addToWindow(win) {
-    if (!win.ZoteroPane) return;
+    if (!win.ZoteroPane || this._addedElements.has(win)) return;
     const doc = win.document;
 
     // Load the localized string bundle into this window once.
@@ -414,7 +448,7 @@ Zotero.AttacloneDedup = {
       const itemEntry = doc.createXULElement("menuitem");
       itemEntry.id = "attaclone-dedup-item-menuitem";
       itemEntry.setAttribute("label", "Check for duplicate attachments");
-      itemEntry.addEventListener("command", () => this.scanSelectedItems(win));
+      itemEntry.addEventListener("command", () => this._runFromMenu(win, () => this.scanSelectedItems(win)));
       itemMenu.appendChild(itemEntry);
       created.push(itemEntry);
     }
@@ -428,7 +462,7 @@ Zotero.AttacloneDedup = {
         "label",
         "Scan collection for duplicate attachments"
       );
-      colEntry.addEventListener("command", () => this.scanCollection(win));
+      colEntry.addEventListener("command", () => this._runFromMenu(win, () => this.scanCollection(win)));
       collectionMenu.appendChild(colEntry);
       created.push(colEntry);
     }
@@ -442,7 +476,7 @@ Zotero.AttacloneDedup = {
         "label",
         "Scan entire library for duplicate attachments"
       );
-      toolsEntry.addEventListener("command", () => this.scanLibrary(win));
+      toolsEntry.addEventListener("command", () => this._runFromMenu(win, () => this.scanLibrary(win)));
       toolsPopup.appendChild(toolsEntry);
       created.push(toolsEntry);
     }
