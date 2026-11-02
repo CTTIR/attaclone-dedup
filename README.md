@@ -1,4 +1,4 @@
-<picture class="cttir-readme-logo"><source class="cttir-logo-dark-source" media="(prefers-color-scheme: dark)" srcset="assets/branding/logo-with-name-dark.png" /><img src="assets/branding/logo-with-name.png" alt="attaclone-dedup hex logo" align="right" width="120" height="139" /></picture>
+<picture class="cttir-readme-logo"><source class="cttir-logo-dark-source" media="(prefers-color-scheme: dark)" srcset="assets/branding/logo-with-name-dark.png" /><img src="assets/branding/logo-with-name.png" alt="attaclone-dedup logo" align="right" width="120" height="120" /></picture>
 
 # Attaclone-dedup
 
