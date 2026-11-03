@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Maintenance integration (2026-11-03)
+- Preserve the Zotero 10 PDF/SHA-256 safety design while integrating compatible audit repairs.
+- Import IOUtils explicitly, release the scan lock after preference failures, and label manual dry-run previews.
+- Require known matching storage modes and PDF types for automatic removal.
+- Protect packaging destinations, retain one deterministic builder, and combine regression coverage in one CI workflow.
+
 ### 1.0.1 safety revision (2026-10-30)
 - Target Zotero 10.0.x; update library-scan API usage and remove the unavailable update feed.
 - Verify SHA-256 equality only; missing/unreadable/empty files are never inferred duplicates.

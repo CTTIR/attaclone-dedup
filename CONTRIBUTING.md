@@ -21,7 +21,8 @@ The plugin is a bootstrapped Zotero 10.0.x extension; the deterministic XPI buil
 
 ```bash
 # Run safety checks and build without overwriting existing archives
-node --test tests/*.test.js
+node --test tests/*.test.js tests/*.test.cjs
+python3 -m unittest discover -s tests -p 'test_*.py'
 python3 tools/build_xpi.py
 python3 tools/check_xpi.py dist/attaclone-dedup-1.0.1.xpi
 ```

@@ -34,7 +34,16 @@ def main(argv=None):
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     version = json.loads((ROOT / "manifest.json").read_text())["version"]
-    output = (args.output or ROOT / "dist" / f"attaclone-dedup-{version}.xpi").resolve()
+    if not isinstance(version, str) or not version or any(c not in "0123456789.-abcdefghijklmnopqrstuvwxyz" for c in version):
+        raise ValueError("Invalid version in plugin manifest")
+    requested = args.output or ROOT / "dist" / f"attaclone-dedup-{version}.xpi"
+    if requested.is_symlink():
+        raise ValueError("Artifact destination must not be a symlink")
+    output = requested.resolve()
+    if output.suffix.lower() != ".xpi":
+        raise ValueError("Choose an .xpi destination")
+    if ROOT in output.parents and ROOT / "dist" not in output.parents:
+        raise ValueError("Build into dist/ or a separate directory; preserve source and historical root archives")
     body = package_bytes()
     if output.exists():
         if output.read_bytes() != body:
@@ -52,6 +61,7 @@ def main(argv=None):
             os.unlink(temporary)
     print(f"Built {output}")
     print(f"SHA-256 {hashlib.sha256(body).hexdigest()}")
+    return output
 
 
 if __name__ == "__main__":

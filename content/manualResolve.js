@@ -19,6 +19,10 @@ var DupResolve = {
     const members = this.params.members;
 
     // Keep everything by default; removal is an explicit review choice.
+    if (this.params.dryRun) {
+      doc.getElementById("dup-intro").textContent =
+        "Dry run: preview your selection. No attachments or annotations will change.";
+    }
 
     for (const m of members) {
       const row = doc.createXULElement("vbox");

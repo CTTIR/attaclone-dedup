@@ -166,9 +166,12 @@ Zotero.AttacloneDedup = {
   },
 
   _canAutoResolve(group) {
+    const first = group.members[0];
     return /^sha256:[a-f0-9]{64}$/.test(group.key) && group.members.length > 1
+      && Number.isInteger(first.linkMode) && first.linkMode >= 0
       && group.members.every((m) => m.key === group.key && m.annotationCount === 0
-        && !m.hasNote && m.tagCount === 0);
+        && !m.hasNote && m.tagCount === 0 && m.size === first.size
+        && m.contentType === "application/pdf" && m.linkMode === first.linkMode);
   },
 
   _pickKeeper(members) {
@@ -280,11 +283,11 @@ Zotero.AttacloneDedup = {
     if (this._running) throw new Error("A duplicate scan is already running");
     if (this._stopping) throw new Error("Plugin is shutting down");
     this._running = true;
-    this._runDryRun = this.getPref("dryRun") !== false;
     this._scanWarnings = [];
     const summary = { itemsScanned: 0, duplicatesFound: 0, autoResolved: 0,
       manualResolved: 0, planned: 0, manualQueued: 0, failed: 0 };
     try {
+      this._runDryRun = this.getPref("dryRun") !== false;
       const manualQueue = [];
       for (const item of items) {
         if (this._stopping) break;

@@ -22,7 +22,8 @@ Zotero Trash; permanent erase is no longer supported.
   are kept. Other file types, including multi-file HTML snapshots, are excluded.
 
 Automatic resolution is restricted to verified identical copies with no
-annotations, notes, or tags. Other verified groups open a manual dialog that
+annotations, notes, or tags, with known matching storage modes and PDF types.
+Other verified groups open a manual dialog that
 initially keeps every copy. A transfer requires exactly one keeper. Notes and
 tags are not merged; retain any attachment whose metadata you need.
 If rollback cannot reload cached items, further changes are blocked until Zotero
@@ -34,14 +35,17 @@ No dependency installation is needed to build. Use Python 3.10+ and Node.js 18+
 for package and regression checks:
 
 ```bash
-node --test tests/*.test.js
+node --test tests/*.test.js tests/*.test.cjs
+python3 -m unittest discover -s tests -p 'test_*.py'
 python3 tools/build_xpi.py
 python3 tools/check_xpi.py dist/attaclone-dedup-1.0.1.xpi
 ```
 
 The builder uses an explicit runtime-file list, fixed ZIP metadata, and refuses
 to overwrite a different existing archive. `python3 _repack.py` remains a
-compatible entry point. Previous archives are preserved.
+compatible entry point, as does `python3 tools/build.py`. Build into `dist/` or
+a separate directory; source paths, historical root archives, and symlink
+destinations are protected. Previous archives are preserved.
 
 Install the resulting XPI through **Tools → Plugins → Install Plugin From File**
 in a disposable Zotero profile first. Review [the audit and validation record](docs/audit/2026-10-30.md)
@@ -75,6 +79,8 @@ snapshots cover the database only; full recovery needs the attachment files too.
 ## Documentation
 
 See [the walkthrough](docs/vignette.qmd) and [the local safety audit](docs/audit/2026-10-30.md).
+The [integration record](docs/integration-2026-11-03.md) distinguishes the merged
+checks from historical audit results.
 The hosted site and archived citation below may describe an earlier published
 version; this working revision has not been released or assigned a new DOI.
 
