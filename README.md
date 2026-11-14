@@ -124,3 +124,5 @@ Local software setup: vLLM with Python/PyTorch, plus R and RStudio.
 The supplied CTTIR Coder Edition v5 artwork and its editable R source are in
 [`tools/branding`](tools/branding/README.md). Use that renderer to reproduce
 the primary badge, alternate editions, and platform icons.
+
+The plugin declares the update manifest required by Zotero 10. The committed [`updates.json`](updates.json) currently advertises no releases; installing a build remains an explicit manual action.
