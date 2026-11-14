@@ -126,3 +126,17 @@ The supplied CTTIR Coder Edition v5 artwork and its editable R source are in
 the primary badge, alternate editions, and platform icons.
 
 The plugin declares the update manifest required by Zotero 10. The committed [`updates.json`](updates.json) currently advertises no releases; installing a build remains an explicit manual action.
+
+
+### Optional native Zotero qualification
+
+After building an XPI, run the explicit desktop check against an installed host:
+
+```sh
+python3 tools/test_zotero.py --zotero /Applications/Zotero.app/Contents/MacOS/zotero \
+  --xpi /absolute/path/to/the-built-plugin.xpi --output /tmp/new-plugin-evidence
+```
+
+The output directory must be new. The runner checks packaged bytes against this checkout, creates a fresh profile and synthetic data directory, verifies those actual paths inside Zotero, exercises real database operations and addon lifecycle, then stops only its owned child process group. Existing/default profiles are refused. Logs, exact host version, source/artifact hashes and fixture results remain in the output directory. No release is created and normal tests never launch or install the plugin.
+
+Bundled Word/LibreOffice installers, automatic sync, connector server, update checks, streaming, translator updates and retraction checks are disabled in the disposable profile. Fixture provider responses are local; these settings are not an operating-system network sandbox. The launcher supports macOS and Linux; Linux requires a display such as a separately managed Xvfb session. Actual host support must be qualified on each target version; the local reference run used Zotero 10.0.9. Python/Node unit tests remain separate from this opt-in desktop check.
